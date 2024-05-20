@@ -2,6 +2,9 @@ const User = require("../models/User");
 const OTP = require("../models/OTP");
 const otpGenerator = require("otp-generator")
 const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
+require("dotenv").config();
+
 //sendOTP
 exports.sendMail = async (req,res) =>{
    try{ //Fetch mail from request body
@@ -163,12 +166,70 @@ exports.signup = async(req,res) =>{
 //login
 exports.login = async(req,res)=>{
     try{
- 
-    }catch(err){
+      //fetch data
+      const{email,password} = req.body;
 
+      //valiadte data
+      if(!email || !password){
+        return res.status(403).json({
+            success:false,
+            message:"Plzz fill all required data"
+        })
+      }
+
+      //user exist
+      const user = await User.findOne({email});
+      if(!user){
+        return res.status(403).json({
+            success:false,
+            message:"Plzz signup first"
+        })
+      }
+
+      //generate jwt token after password matching
+       if(await bcrypt.compare(password,user.password)){
+         const payload = {
+            email:user.email,
+            id:user._id,
+            role:user.role,
+         }
+          const token = jwt.sign(payload,process.env.JWT_SECRET,{expiresIn:"2h"})
+
+          user.token = token;
+          user.password = undefined;
+
+          //craete cookie and send msg
+          const options = {
+            expires:new Date(Date.now() +3*24*50*60*1000),
+            httpOnly:true,
+          }
+          res.cookie("token",token,options).status(200).json({
+            success:true,
+            token,
+            user,
+            message:'Logged in successfully'
+          })
+
+       }
+       else{
+        return res.status(401).json({
+            success:false,
+            message:"password is incorrect"
+        })
+       }
+       
+    
+    }catch(err){
+       console.log(err);
+       return res.status(500).json({
+        success:false,
+        message:"Login failure, try again"
+       })
     }
-}
+};
 
 //change password
-
+exports.changePassword = async(req,res)=>{
+    
+}
 
