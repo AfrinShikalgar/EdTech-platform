@@ -233,9 +233,17 @@ exports.changePassword = async(req,res)=>{
     const {password, newPassword, confirmPassword} = req.body;
 
     if(!password || !newPassword || !confirmPassword){
-        return res.stutus(400).json({
+        return res.status(400).json({
             success:false,
             message:"Plzz enter all fields"
+        })
+    }
+
+    const passwordExist =await User.findOne({password:password})
+    if(newPassword !== confirmPassword){
+        return res.status(401).json({
+            success:false,
+            message:"password both not matching"
         })
     }
 
