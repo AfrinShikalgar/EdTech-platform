@@ -12,7 +12,7 @@ exports.capturePayment = async(req,res) =>{
     const {course_id} = req.body;
     const user_id = req.user.id;
 
-    //vaidate
+    //validate
     if(!course_id){
         return res.status(400).json({
             success:false,
@@ -49,7 +49,7 @@ exports.capturePayment = async(req,res) =>{
 
 
 
-    //order craete
+    //order create
     const amount = course.price;
     const currency = "INR";
 
@@ -90,7 +90,6 @@ exports.capturePayment = async(req,res) =>{
 
 
 //verify signature of Razorpay
-
 exports.verifySignature = async(req,res) =>{
    try{ const webhookSecret = 12345678;
     const signature = req.headers("x-razorpay-signature");
