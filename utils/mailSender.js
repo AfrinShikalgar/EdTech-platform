@@ -1,27 +1,15 @@
-const nodemailer = require('nodemailer');
+const cloudinary = require('cloudinary').v2
 
 
-const mailSender = async(email,title,body)=>{
-    try{
-      let transporter = nodemailer.createTransport({
-        host:process.env.MAIL_HOST,
-        auth:{
-            user:process.env.MAIL_USER,
-            pass: process.env.MAIL_PASS
-        }
-      })
-
-      let info = await transporter.sendMail({
-        from:'EdTech Platfrom - by Afrin',
-        to:`${email}`,
-        subject:`${title}`,
-        html:`${body}`
-      })
-      console.log(info);
-      return info;
-    }catch(err){
-      console.log(error.message);
+exports.uploadImageToCloudinary  = async (file, folder, height, quality) => {
+    const options = {folder};
+    if(height) {
+        options.height = height;
     }
-}
+    if(quality) {
+        options.quality = quality;
+    }
+    options.resource_type = "auto";
 
-module.exports = mailSender;
+    return await cloudinary.uploader.upload(file.tempFilePath, options);
+}
